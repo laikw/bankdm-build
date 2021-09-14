@@ -44,31 +44,3 @@ if __name__ == "__main__":
     pd.concat([train_data['y_yes'], train_data.drop(['y_no', 'y_yes'], axis=1)], axis=1).to_csv(f"{base_dir}/train/train.csv", index=False, header=False)
     pd.concat([validation_data['y_yes'], validation_data.drop(['y_no', 'y_yes'], axis=1)], axis=1).to_csv(f"{base_dir}/validation/validation.csv", index=False, header=False)
     pd.concat([test_data['y_yes'], test_data.drop(['y_no', 'y_yes'], axis=1)], axis=1).to_csv(f"{base_dir}/test/test.csv", index=False, header=False)
-
-# ---
-#     # Drop columns that are not required
-#     df = df.drop(["mobile", "name"], axis=1)
-
-#     # Shuffle the data
-#     df = df.sample(frac=1)
-
-#     # One hot encoding
-#     df = pd.get_dummies(df, columns=['gender'])
-    
-#     #If required, save the id column    
-# #     df.to_csv('output.csv', columns=["id"], index=False, header=False)
-#     df = df.drop(["id"], axis=1)
-    
-#     # Split into train, validate, test data
-#     rows = df.shape[0]
-#     train = int(.7 * rows)
-#     validate = int(.1 * rows)
-#     test = rows-train-validate
-    
-#     # Save the files to local directory
-#     df.iloc[:train].to_csv(f"{base_dir}/train/train.csv",
-#                             index=False,header=False)
-#     df.iloc[train:(train+validate)].to_csv(f"{base_dir}/validation/validation.csv",
-#                             index=False,header=False)
-#     df.iloc[(train+validate):].to_csv(f"{base_dir}/test/test.csv",
-#                             index=False,header=False)

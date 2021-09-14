@@ -7,7 +7,7 @@ RedShift ML is also demostrated.
 SageMaker Studio to be created and attached to the VPC (not the default option). 
 Create a SageMaker project for building, training and deployment. Instructions are at https://sagemaker-immersionday.workshop.aws/en/lab6.html
 Overwrite the files from this repo.
-
+Add IAM role for SageMaker role.
 
 ## Flow of the demo
 The notebook have been tested using 'Python 3 (Data Science)'.

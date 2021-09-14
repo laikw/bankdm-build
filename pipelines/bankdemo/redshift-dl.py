@@ -175,6 +175,9 @@ if __name__ == "__main__":
     db=secret_json['db']
     logger.info("Cluster_id: " + cluster_id + "\nDB: " + db + "\nSecret ARN: " + secret_arn)
     
+    schema_redshift = secret_json['schema_redshift']
+    table_name_redshift = secret_json['table_name_redshift']
+    
 
     # Setup the RedShift client
     client_redshift = session.client("redshift-data")
@@ -185,8 +188,7 @@ if __name__ == "__main__":
     
     
     # Unload from RedShift to S3
-#     query_str = "unload('select * from redshift.data;') to '" + redshift_unload_path + "' iam_role '" + redshift_iam_role + "' format as CSV header ALLOWOVERWRITE GZIP"
-    query_str = f"unload('select * from redshift.data;') to '{redshift_unload_path}' iam_role '{redshift_iam_role}' format as CSV header ALLOWOVERWRITE GZIP"
+    query_str = f"unload('select * from {schema_redshift}.{table_name_redshift};') to '{redshift_unload_path}' iam_role '{redshift_iam_role}' format as CSV header ALLOWOVERWRITE GZIP"
     logger.info("query string: " + query_str)
     
     res = client_redshift.execute_statement(Database=db, SecretArn=secret_arn, Sql=query_str, ClusterIdentifier=cluster_id)
