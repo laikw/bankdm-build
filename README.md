@@ -3,11 +3,15 @@ The purpose of this repo is to provide sample codes to illustrate MLOps with the
 RedShift ML is also demostrated.
 
 
-## Pre-req
-SageMaker Studio to be created and attached to the VPC (not the default option). 
-Create a SageMaker project for building, training and deployment. Instructions are at https://sagemaker-immersionday.workshop.aws/en/lab6.html
-Overwrite the files from this repo.
-Add IAM role for SageMaker role.
+## Steps prior to running the notebooks
+- Create a new VPC.
+- SageMaker Studio to be created and attached to the VPC (not the default option). 
+- Add IAM role to SageMaker role.
+- Git clone this repo.
+- Create a SageMaker project for building, training and deployment. Instructions are at https://sagemaker-immersionday.workshop.aws/en/lab6.html
+- Overwrite the files from this repo to the modelbuild repo.
+
+Detailed instructions are located at **instructions.md**
 
 ## Flow of the demo
 The notebook have been tested using 'Python 3 (Data Science)'.
@@ -18,6 +22,17 @@ The notebook have been tested using 'Python 3 (Data Science)'.
 4. Copy the csv file to S3, create and load the csv data to Athena. (Notebook 03)
 5. Create RedShift schema and table. Insert csv data to RedShift using Athena. (Notebook 03)
 
+
+## Roles
+There are two roles used here - SageMaker Execution role and a role for executing things in RedShift (BankDemo role)
+
+## Potential issue
+- If the secret already exists and you are creating the RedShift cluster again in notebook 01, the secret will not be updated to the new password. Please update the password manually in Secrets Manager.
+- The Security Group used for the RedShift and SageMaker Studio is the default one. If you are using another security group, please change the security_group_id in notebook 01.
+
+## To-do
+- Create script to cleanup resources provisioned.
+- Error handling
 
 ## Reference
 Some codes were taken from the following sources and edited from there:
