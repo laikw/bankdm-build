@@ -1,38 +1,13 @@
-## Purpose
-The purpose of this repo is to provide sample codes to illustrate MLOps with the data source coming from RedShift.
-RedShift ML is also demostrated.
-
-
-## Pre-req
-Get the security group ID if there is more than one security group in the VPC.
-SageMaker Studio to be created and attached to the VPC (not the default option). 
-Add IAM role to SageMaker role.
-Git clone this repo.
-Create a SageMaker project for building, training and deployment. Instructions are at https://sagemaker-immersionday.workshop.aws/en/lab6.html
-Overwrite the files from this repo to the modelbuild repo.
-
-Detailed instructions are located at [instructions.md](instructions.md)
-
-## Flow of the demo
-The notebook have been tested using 'Python 3 (Data Science)'.
-
-1. Create the necessary IAM roles and policies. (Notebook 01)
-2. Create secret in Secret Manager and RedShift cluster. (Notebook 01)
-3. Explore the data (optional) (Notebook 02)
-4. Copy the csv file to S3, create and load the csv data to Athena. (Notebook 03)
-5. Create RedShift schema and table. Insert csv data to RedShift using Athena. (Notebook 03)
-
-
-## Reference
-Some codes were taken from the following sources and edited from there:
-- https://github.com/data-science-on-aws/workshop
-- https://github.com/aws-samples/amazon-sagemaker-immersion-day
-- https://aws.amazon.com/blogs/aws/amazon-redshift-ml-is-now-generally-available-use-sql-to-create-machine-learning-models-and-make-predictions-from-your-data/
-
-
 # Detailed instructions for setting up the environment
 
 Note: This guide will setup a new VPC with a private and public subnet.
+
+## Content
+- [Allocate elastic IP](#Allocate-elastic-IP)
+- [Create SageMaker Studio](#Create-SageMaker-Studio)
+- [Assign IAM permission](#Assign-IAM-permission)
+- [Create SageMaker Studio user](#Create-SageMaker-Studio-user)
+- [SageMaker Studio](#SageMaker-Studio)
 
 ## Allocate elastic IP
 - Login to your AWS management console and go to VPC.
@@ -59,7 +34,6 @@ Note: This guide will setup a new VPC with a private and public subnet.
 ![VPC](img/vpc5.png)
 
 ---
-
 
 ## Create SageMaker Studio
 - In your AWS management console, go to SageMaker.
