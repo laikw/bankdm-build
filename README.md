@@ -36,6 +36,7 @@ Notebook 06 will clean up most of the resources created automatically. Other are
 - S3 buckets
 - VPC
 - EFS used by SageMaker Studio
+- Resources created by SageMaker Pipelines like CodePipeline, CodeBuild
 
 ## To-do
 - Error handling
