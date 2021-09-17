@@ -224,7 +224,7 @@ if __name__ == "__main__":
     for obj in datafiles['Contents']:
         keys.append(obj['Key'])
     
-    # new variable is to determine if header should be written. 
+    # The new variable is to determine if header should be written. 
     # It should only be written for the first file
     new = 0
     

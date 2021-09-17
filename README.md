@@ -30,8 +30,14 @@ There are two roles used here - SageMaker Execution role and a role for executin
 - If the secret already exists and you are creating the RedShift cluster again in notebook 01, the secret will not be updated to the new password. Please update the password manually in Secrets Manager.
 - The Security Group used for the RedShift and SageMaker Studio is the default one. If you are using another security group, please change the security_group_id in notebook 01.
 
+## Clean up
+Notebook 06 will clean up most of the resources created automatically. Other areas to delete manually are:
+- SageMaker Studio
+- S3 buckets
+- VPC
+- EFS used by SageMaker Studio
+
 ## To-do
-- Create script to cleanup resources provisioned.
 - Error handling
 
 ## Reference
