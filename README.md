@@ -27,7 +27,7 @@ The notebook have been tested using 'Python 3 (Data Science)'.
 There are two roles used here - SageMaker Execution role and a role for executing things in RedShift (BankDemo role)
 
 ## Potential issue
-- If the secret already exists and you are creating the RedShift cluster again in notebook 01, the secret will not be updated to the new password. Please update the password manually in Secrets Manager.
+- If the secret already exists and you are creating the RedShift cluster again in notebook 01, the secret will not be updated to the new password. Please update the password manually in Secrets Manager. This is to prevent accidential update of the secret when you rerun the notebook while the RedShift cluster is still running. 
 - The Security Group used for the RedShift and SageMaker Studio is the default one. If you are using another security group, please change the security_group_id in notebook 01.
 
 ## Clean up
