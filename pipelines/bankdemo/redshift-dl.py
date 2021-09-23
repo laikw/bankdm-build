@@ -113,7 +113,6 @@ if __name__ == "__main__":
     
     client_sts = boto3.client('sts')
     logger.info(client_sts.get_caller_identity())
-#     client = boto3.client("sts", aws_access_key_id=access_key, aws_secret_access_key=secret_key)
     accountID = client_sts.get_caller_identity()["Account"]    
     logger.info("Account ID: %s", accountID)
     

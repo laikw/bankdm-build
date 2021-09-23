@@ -188,7 +188,6 @@ def get_pipeline(
             ProcessingOutput(output_name="test", source="/opt/ml/processing/test"),
         ],
         code=os.path.join(BASE_DIR, "preprocess.py"),
-        #job_arguments=["--input-data", s3bucket],
     )
     #---
 
