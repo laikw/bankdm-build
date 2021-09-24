@@ -1,4 +1,4 @@
-# Copyright 2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# Copyright 2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License"). You
 # may not use this file except in compliance with the License. A copy of
@@ -55,6 +55,15 @@ from sagemaker.workflow.steps import (
     TrainingStep,
 )
 from sagemaker.workflow.step_collections import RegisterModel
+
+from boto3.session import Session
+
+from sagemaker.workflow.lambda_step import (
+    LambdaStep,
+    LambdaOutput,
+    LambdaOutputTypeEnum,
+)
+from sagemaker.lambda_helper import Lambda
 
 BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 
@@ -114,11 +123,11 @@ def get_pipeline(
     sagemaker_project_arn=None,
     role=None,
     default_bucket=None,
-    model_package_group_name="BankDemo-Group",  # Choose any name
-    pipeline_name="BankDemo-Pipeline",  # You can find your pipeline name in the Studio UI (project -> Pipelines -> name)
-    base_job_prefix="BankDemo-",  # Choose any name
+    model_package_group_name="BankDM-Group",  # Choose any name
+    pipeline_name="BankDM-Pipeline",  # You can find your pipeline name in the Studio UI (project -> Pipelines -> name)
+    base_job_prefix="BankDM-",  # Choose any name
 ):
-    """Gets a SageMaker ML Pipeline instance working with on CustomerChurn data.
+    """Gets a SageMaker ML Pipeline instance.
     Args:
         region: AWS region to create and run the pipeline.
         role: IAM role to create and run steps and pipeline.
@@ -131,11 +140,12 @@ def get_pipeline(
         role = sagemaker.session.get_execution_role(sagemaker_session)
 
     # Parameters for pipeline execution
+    # Some parameters are passed in from codebuild-buildspec.yml
     processing_instance_count = ParameterInteger(
         name="ProcessingInstanceCount", default_value=1
     )
     processing_instance_type = ParameterString(
-        name="ProcessingInstanceType", default_value="ml.m5.2xlarge"
+        name="ProcessingInstanceType", default_value="ml.m5.xlarge"
     )
     training_instance_type = ParameterString(
         name="TrainingInstanceType", default_value="ml.m5.xlarge"
@@ -147,11 +157,43 @@ def get_pipeline(
     )
     s3bucket = ParameterString(
         name="InputDataUrl",
-        default_value=default_bucket,  # Change this to point to the s3 location of your raw input data.
+        default_value=default_bucket, 
     )
+    
+    sts = boto3.client('sts')
+    accountID = sts.get_caller_identity()["Account"]  
 
     #---
-    # Processing step for feature engineering. Used for both RedShift download and preprocessing
+    # Use a pre-created lambda to download data from RedShift to S3
+    step_redshift_download = LambdaStep(
+        name="Lambda-RedShift-dl",
+        lambda_func=Lambda(
+          function_arn=f"arn:aws:lambda:ap-southeast-1:{accountID}:function:bankdm-redshift-dl"
+        ),
+        inputs={
+            "bucket": s3bucket
+        },
+    )
+
+    # Another way is to use SageMaker Pipelines to create a lambda function. 
+    # Update to the script file does not automatically update the lambda code
+#     step_redshift_download = LambdaStep(
+#         name="Lambda-RedShift-dl",
+#         lambda_func=Lambda(
+#           function_name="bankdm-redshift-dl",
+#           execution_role_arn=f'arn:aws:iam::{accountID}:role/BankDM-Lambda',
+#           script="lambda_redshift_dl.py",
+#           handler="lambda_redshift_dl.lambda_handler",
+#           timeout=600,
+#           memory_size=5120,
+#         ),
+#         inputs={
+#             "bucket": s3bucket
+#         },
+#     )
+    
+    #---
+    # Processing step for feature engineering. 
     sklearn_processor = SKLearnProcessor(
         framework_version="0.23-1",
         instance_type=processing_instance_type,
@@ -160,27 +202,15 @@ def get_pipeline(
         sagemaker_session=sagemaker_session,
         role=role,
     )
-    
-    step_redshift_download = ProcessingStep(
-        name="Step-RedShift-Download",  # choose any name
-        processor=sklearn_processor,
-        code=os.path.join(BASE_DIR, "redshift-dl.py"),
-        job_arguments=["--input-data", s3bucket],
-        outputs=[
-            ProcessingOutput(output_name="raw", source="/opt/ml/processing/raw"),
-        ],
-    )
-    
+        
     step_process = ProcessingStep(
-        name="Step-PreProcess",  # choose any name
+        name="Step-PreProcess",  
         processor=sklearn_processor,
         inputs=[
             ProcessingInput(
-                source=step_redshift_download.properties.ProcessingOutputConfig.Outputs[
-                    "raw"
-                ].S3Output.S3Uri,
+                source=f's3://{s3bucket}/bankdm/unload/',
                 destination="/opt/ml/processing/raw",
-            ),
+            )
         ],
         outputs=[
             ProcessingOutput(output_name="train", source="/opt/ml/processing/train"),
@@ -188,8 +218,9 @@ def get_pipeline(
             ProcessingOutput(output_name="test", source="/opt/ml/processing/test"),
         ],
         code=os.path.join(BASE_DIR, "preprocess.py"),
-        #job_arguments=["--input-data", s3bucket],
     )
+    
+    step_process.add_depends_on([step_redshift_download])
     #---
 
     #---
@@ -300,9 +331,7 @@ def get_pipeline(
     model_metrics = ModelMetrics(
         model_statistics=MetricsSource(
             s3_uri="{}/evaluation.json".format(
-                step_eval.arguments["ProcessingOutputConfig"]["Outputs"][0]["S3Output"][
-                    "S3Uri"
-                ]
+                step_eval.arguments["ProcessingOutputConfig"]["Outputs"][0]["S3Output"]["S3Uri"]
             ),
             content_type="application/json",
         )
