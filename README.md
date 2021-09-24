@@ -12,7 +12,7 @@ Disclaimer: The focus of this demo is to showcase the above and for simplicity, 
 - Create a SageMaker project for building, training and deployment. Instructions are at https://sagemaker-immersionday.workshop.aws/en/lab6.html
 - Overwrite the files from this repo to the modelbuild repo.
 
-Detailed instructions are located at **instructions.md**
+Detailed instructions are located in **instructions.md**
 
 
 ## High level description of the demo
@@ -49,7 +49,7 @@ The steps for the SageMaker Pipelines is as follows
 ## Roles
 There are four roles used in this demo:
 - SageMaker Execution role: For SageMaker Studio to create/access resources
-- RedShift role (BankDM-RedShift): For RedShift cluster to access resources and for unloading from RedShift to S3
+- RedShift role (BankDM-RedShift): For RedShift cluster to access resources and for unloading data from RedShift to S3
 - Lambda execution role (BankDM-Lambda): For Lambda function to access resources
 - AmazonSageMakerServiceCatalogProductsUseRole (Default role): For SageMaker Pipelines to create/access resources
 
@@ -60,7 +60,7 @@ There are four roles used in this demo:
 - If you change any names such as role name, you may have to edit the SageMaker Pipelines code under 'pipelines/bankdm'.
 
 ## Clean up
-Notebook 06 will clean up most of the resources created automatically. Other areas to delete manually are:
+Notebook 06 will clean up most of the resources created automatically by other notebooks. Other areas to delete manually are:
 - SageMaker Studio
 - S3 buckets
 - VPC
@@ -68,9 +68,10 @@ Notebook 06 will clean up most of the resources created automatically. Other are
 - Resources created by SageMaker Pipelines like SageMaker Project. CLI has to be used to delete SageMaker Project which in turns deletes the CodePipeline (aws sagemaker delete-project --project-name BankDM)
 
 
-## To-do
+## Possible enhancement
 - Error handling
-- Feature store?
+- Feature store
+- Cloudformation
 
 
 ## Reference
