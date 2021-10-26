@@ -33,9 +33,11 @@ def lambda_handler(event, context):
     logger.addHandler(logging.StreamHandler())
     
     secret_name='bankdm_redshift_login' ## replace the secret name with yours
+    # bucket name is passed in as a parameter
     bucket = event['bucket']    
     prefix = 'bankdm'
     
+    # Create client sessions
     session = boto3.session.Session()
     region = session.region_name
     
@@ -43,6 +45,7 @@ def lambda_handler(event, context):
     accountID = client_sts.get_caller_identity()["Account"]    
     logger.info("Account ID: %s", accountID)
     
+    # get botocore session
     bc_session = s.get_session()
     
     session = boto3.Session(
@@ -92,10 +95,10 @@ def lambda_handler(event, context):
     }
     
     
-    # Need the actual IAM role
+    # Need the IAM role to unload data from RedShift
     redshift_iam_role = f'arn:aws:iam::{accountID}:role/BankDM-RedShift'
     
-    # Below code is to get RedShift username and password from secrets manager
+    # Get RedShift username and password from secret manager
     secretsmanager = boto3.client('secretsmanager')
     
     try:
@@ -114,6 +117,7 @@ def lambda_handler(event, context):
         else:
             secret = base64.b64decode(get_secret_value_response['SecretBinary'])
 
+    # Load the variables from the secret manager
     secret_json = json.loads(secret)
     master_user_name = secret_json['username']
     master_user_pw = secret_json['password']
@@ -126,15 +130,17 @@ def lambda_handler(event, context):
     schema_redshift = secret_json['schema_redshift']
 
     table_name_redshift = secret_json['table_name_redshift']
-
     
-    # Setup the client
+    # Setup the RedShift client
     client_redshift = session.client("redshift-data")
-    print("Data API client successfully loaded")
+
     
     waiter_model = WaiterModel(waiter_config)
     custom_waiter = create_waiter_with_client(waiter_name, waiter_model, client_redshift)
     
+    print("Data API client successfully loaded")
+
+    # Set the RedShift unload S3 path
     redshift_unload_path = 's3://{}/{}/'.format(bucket,prefix) + 'unload/'
     logger.info("S3 filepath is %s" %redshift_unload_path)
     
