@@ -1,8 +1,17 @@
 ## Purpose
-The purpose of this repo is to provide sample codes to create a demo to illustrate MLOps (preprocessing, training, deploying etc) with the data source coming from RedShift. RedShift ML is also demostrated.
+The purpose of this repo is to provide sample codes to create a demo to illustrate MLOps (preprocessing, training, deploying etc) with the data source coming from RedShift. Other RedShift features like RedShift Spectrum, RedShift ML are also demostrated.
 
 Disclaimer: The focus of this demo is to showcase the above and for simplicity, full IAM permissions are assigned. In production setting, best practices like least IAM permission should be used instead.  
 
+## Services used
+Below list the AWS services used in this demo:
+- SageMaker
+- Code* (Part of SageMaker Pipelines)
+- RedShift
+- S3
+- Glue
+- Athena
+- Secrets Manager
 
 ## Prerequisite prior to running the notebooks
 - Create a new VPC.
