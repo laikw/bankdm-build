@@ -14,7 +14,7 @@ Below list the AWS services used in this demo:
 - Secrets Manager
 
 ## Prerequisite prior to running the notebooks
-- Create a new VPC. (Cloudformation script bankdm-cloudformation.yaml can used for this)
+- Create a new VPC. (Cloudformation script `bankdm-cloudformation.yaml` can be used for this)
 - SageMaker Studio to be created and attached to the VPC (not the default option). Another way would be to allow connection from the Internet to RedShift. 
 - Add IAM role to SageMaker Execution role.
 - Git clone this repo.
