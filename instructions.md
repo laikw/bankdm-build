@@ -3,13 +3,16 @@
 Note: This guide will setup a new VPC with a private and public subnet.
 
 ## Content
-- [Allocate elastic IP](#Allocate-elastic-IP)
+- [Create a separate VPC](#Create-a-separate-VPC)
 - [Create SageMaker Studio](#Create-SageMaker-Studio)
 - [Assign IAM permission](#Assign-IAM-permission)
 - [Create SageMaker Studio user](#Create-SageMaker-Studio-user)
 - [SageMaker Studio](#SageMaker-Studio)
 
-## Allocate elastic IP
+## Create a separate VPC 
+
+#### Note: For this step, either use CloudFormation to create the resources or follow the steps below to create the resources manually. The CloudFormation script is in the same folder as this file and it is named `bankdm-cloudformation.yaml`.
+
 - Login to your AWS management console and go to VPC.
 - On the left side, click on `Elastic IPs`.
 - At the right side, click on `Allocate Elastic IP address`.
@@ -128,7 +131,7 @@ Note: This guide will setup a new VPC with a private and public subnet.
 
 ![studio](img/studio5.png)
 
-- Enter a name for the project and click `Create project`.
+- Enter a name for the project (e.g. BankDM) and click `Create project`. The screenshots below use the name BankDemo2.
 
 ![studio](img/studio6.png)
 
