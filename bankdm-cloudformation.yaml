@@ -3,22 +3,22 @@ Metadata:
   Generator: "former2"
 Description: ""
 Resources:
-  EC2Subnet:
+  EC2SubnetPrivate:
     Type: "AWS::EC2::Subnet"
     Properties:
-      AvailabilityZone: !GetAtt EC2Subnet2.AvailabilityZone
+      AvailabilityZone: !Sub "${AWS::Region}a"
       CidrBlock: "10.0.1.0/24"
-      VpcId: !GetAtt EC2Subnet2.VpcId
+      VpcId: !Ref EC2VPC
       MapPublicIpOnLaunch: false
       Tags: 
       - 
         Key: "Name"
         Value: "Private subnet"
 
-  EC2Subnet2:
+  EC2SubnetPublic:
     Type: "AWS::EC2::Subnet"
     Properties:
-      AvailabilityZone: !Sub "${AWS::Region}c"
+      AvailabilityZone: !Sub "${AWS::Region}a"
       CidrBlock: "10.0.0.0/24"
       VpcId: !Ref EC2VPC
       MapPublicIpOnLaunch: false
@@ -45,7 +45,7 @@ Resources:
   EC2NatGateway:
     Type: "AWS::EC2::NatGateway"
     Properties:
-      SubnetId: !Ref EC2Subnet2
+      SubnetId: !Ref EC2SubnetPublic
       AllocationId: !GetAtt EC2EIP.AllocationId
 
   EC2EIP:
@@ -57,5 +57,107 @@ Resources:
     Type: "AWS::EC2::VPCGatewayAttachment"
     Properties:
       InternetGatewayId: !Ref EC2InternetGateway
-      VpcId: !GetAtt EC2Subnet.VpcId
+      VpcId: !Ref EC2VPC
+  
+  EC2RouteTablePublic:
+    Type: "AWS::EC2::RouteTable"
+    Properties:
+      VpcId: !Ref EC2VPC
 
+  EC2RouteTablePrivate:
+    Type: "AWS::EC2::RouteTable"
+    Properties:
+      VpcId: !Ref EC2VPC
+
+  EC2RoutePublic:
+    Type: "AWS::EC2::Route"
+    Properties:
+      DestinationCidrBlock: "0.0.0.0/0"
+      GatewayId: !Ref EC2InternetGateway
+      RouteTableId: !Ref EC2RouteTablePublic
+
+  EC2RoutePrivate:
+    Type: "AWS::EC2::Route"
+    Properties:
+      DestinationCidrBlock: "0.0.0.0/0"
+      NatGatewayId: !Ref EC2NatGateway
+      RouteTableId: !Ref EC2RouteTablePrivate
+      
+  EC2SubnetRouteTableAssociationPublic:
+    Type: "AWS::EC2::SubnetRouteTableAssociation"
+    Properties:
+      RouteTableId: !Ref EC2RouteTablePublic
+      SubnetId: !Ref EC2SubnetPublic
+      
+  EC2SubnetRouteTableAssociationPrivate:
+    Type: "AWS::EC2::SubnetRouteTableAssociation"
+    Properties:
+      RouteTableId: !Ref EC2RouteTablePrivate
+      SubnetId: !Ref EC2SubnetPrivate
+      
+
+  IAMManagedPolicy:
+    Type: "AWS::IAM::ManagedPolicy"
+    Properties:
+      ManagedPolicyName: "AmazonSageMaker-ExecutionPolicy-20210914T142114"
+      Path: "/service-role/"
+      PolicyDocument: |
+          {
+              "Version": "2012-10-17",
+              "Statement": [
+                  {
+                      "Effect": "Allow",
+                      "Action": [
+                          "s3:GetObject",
+                          "s3:PutObject",
+                          "s3:DeleteObject",
+                          "s3:ListBucket"
+                      ],
+                      "Resource": [
+                          "arn:aws:s3:::*"
+                      ]
+                  }
+              ]
+          }
+
+  IAMRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      Path: "/service-role/"
+      RoleName: "AmazonSageMaker-ExecutionRole-20210914T142114"
+      AssumeRolePolicyDocument: "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"sagemaker.amazonaws.com\"},\"Action\":\"sts:AssumeRole\"}]}"
+      MaxSessionDuration: 3600
+      ManagedPolicyArns: 
+      - "arn:aws:iam::aws:policy/SecretsManagerReadWrite"
+      - "arn:aws:iam::aws:policy/IAMFullAccess"
+      - "arn:aws:iam::aws:policy/AmazonAthenaFullAccess"
+      - "arn:aws:iam::aws:policy/AmazonRedshiftFullAccess"
+      - "arn:aws:iam::aws:policy/AmazonSageMakerFullAccess"
+      - !Ref IAMManagedPolicy
+      - "arn:aws:iam::aws:policy/AWSLambda_FullAccess"
+      Description: "SageMaker execution role created from the SageMaker AWS Management Console."
+
+  SageMakerDomain:
+    Type: "AWS::SageMaker::Domain"
+    Properties:
+      DomainName: "default-1633090281616"
+      AuthMode: "IAM"
+      VpcId: !GetAtt EC2SubnetPrivate.VpcId
+      AppNetworkAccessType: "VpcOnly"
+      SubnetIds: 
+      - !Ref EC2SubnetPrivate
+      DefaultUserSettings: 
+        ExecutionRole: !GetAtt IAMRole.Arn
+        SecurityGroups: 
+        - !GetAtt EC2VPC.DefaultSecurityGroup
+        SharingSettings: 
+          NotebookOutputOption: "Allowed"
+          S3OutputPath: !Sub "s3://sagemaker-studio-${AWS::AccountId}-bn3kxpx3xob/sharing"
+
+  SageMakerUserProfile:
+    Type: "AWS::SageMaker::UserProfile"
+    Properties:
+      UserProfileName: "user"
+      DomainId: !Ref SageMakerDomain
+      UserSettings: 
+        ExecutionRole: !GetAtt IAMRole.Arn
