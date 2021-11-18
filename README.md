@@ -14,9 +14,13 @@ Below list the AWS services used in this demo:
 - Secrets Manager
 
 ## Prerequisite prior to running the notebooks
-- Create a new VPC.
-- SageMaker Studio to be created and attached to the VPC (not the default option). Another way would be to allow connection from the Internet to RedShift. 
-- Add IAM role to SageMaker Execution role.
+Deploy the CloudFormation script `bankdm-cloudformation.yaml`. The script will do the following:
+- Create a new VPC. 
+- SageMaker Studio to be created and attached to the VPC (not the default option). Another way would be to allow connection from the Internet to RedShift which is not recommended. 
+- Add IAM roles to SageMaker Execution role.
+
+The following steps are to be done manually:
+- Enable SageMaker jumpstart in SageMaker Studio
 - Git clone this repo.
 - Create a SageMaker project for building, training and deployment. 
 - Overwrite the files from this repo to the modelbuild repo.
@@ -27,15 +31,26 @@ Detailed instructions are located in [**instructions.md**](instructions.md)
 ## High level description of the demo
 Note: Please complete the prerequisite steps above first.
 
-1. Create the necessary IAM roles and policies. (Notebook 01)
-2. Create RedShift cluster, secret in Secret Manager and Lambda function. (Notebook 01)
-3. Explore the data (optional). (Notebook 02)
-4. Copy the CSV file to S3. Create the Glue table and reference the CSV file. (Notebook 03)
-5. Create RedShift schema and table. Insert csv data to RedShift using Athena. (Notebook 03)
-6. Commit the notebook files to CodeCommit to trigger the CI CodePipeline to run.
-7. Once the SageMaker staging endpoint has been created, run predictions to the endpoint. (Notebook 04)
-8. You can also use RedShift ML to create a model directly in RedShift using SQL statements. This leverages on SageMaker AutoPilot to create another model (different from the staging SageMaker endpoint). (Notebook 05)
-9. Predictions can also be done directly in RedShift using SQL statements to the RedShift ML model. For this demo, SQL statements are provided in the notebook but you can also run the same in the RedShift query editer. (Notebook 05)
+Notebook 01
+- Create the necessary IAM roles and policies. 
+- Create RedShift cluster, secret in Secret Manager and Lambda function. 
+
+Notebook 02
+- Explore the data (optional). 
+
+Notebook 03
+- Copy the CSV file to S3. Create table in Glue Data Catalog (Glue table) and reference the CSV file.
+- Use Athena to query the Glue table. 
+- Create RedShift schema and external table referencing the Glue table.
+- Create RedShift table. Insert CSV data to RedShift using Athena. 
+
+Notebook 04
+- Once the SageMaker staging endpoint has been created, run predictions to the endpoint. 
+
+Notebook 05
+- You can also use RedShift ML to create a model directly in RedShift using SQL statements. This leverages on SageMaker AutoPilot to create another model (different from the staging SageMaker endpoint). 
+- Predictions can also be done directly in RedShift using SQL statements to the RedShift ML model. For this demo, SQL statements are provided in the notebook but you can also run the same in the RedShift query editer. 
+
 
 
 ## High-level architecture diagram 
@@ -77,7 +92,7 @@ There are four roles used in this demo:
 Notebook 06 will clean up most of the resources created automatically by other notebooks. Other areas to delete manually are:
 - SageMaker Studio
 - S3 buckets
-- VPC
+- VPC (delete the CloudFormation if this method is used)
 - EFS used by SageMaker Studio
 - Resources created by SageMaker Pipelines like SageMaker Project. CLI has to be used to delete SageMaker Project which in turns deletes the CodePipeline (aws sagemaker delete-project --project-name BankDM)
 
@@ -85,7 +100,7 @@ Notebook 06 will clean up most of the resources created automatically by other n
 ## Possible enhancement
 - Error handling
 - Feature store
-- Cloudformation
+- Cloudformation to create other resources
 
 
 ## Reference

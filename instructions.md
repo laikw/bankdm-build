@@ -3,108 +3,75 @@
 Note: This guide will setup a new VPC with a private and public subnet.
 
 ## Content
-- [Allocate elastic IP](#Allocate-elastic-IP)
-- [Create SageMaker Studio](#Create-SageMaker-Studio)
+- [CloudFormation](#CloudFormation)
+- [Launch SageMaker Studio](#Launch-SageMaker-Studio)
 - [Assign IAM permission](#Assign-IAM-permission)
 - [Create SageMaker Studio user](#Create-SageMaker-Studio-user)
 - [SageMaker Studio](#SageMaker-Studio)
 
-## Allocate elastic IP
-- Login to your AWS management console and go to VPC.
-- On the left side, click on `Elastic IPs`.
-- At the right side, click on `Allocate Elastic IP address`.
+## CloudFormation
+CloudFormation is used to deploy the a new VPC and SageMaker Studio
 
-![VPC](img/vpc1.png)
+- Login to your AWS management console and go to CloudFormation.
+- On the left side, click on `Stacks`.
+- At the right side, click on `Create stack`, then `With new resources (standard)`.
 
-- Leave the settings as is and click `Allocate`.
+![CF](img/cf1.png)
 
-![VPC](img/vpc2.png)
+- Under `Specify template`, select `Upload a template file`. Choose the `bankdm-cloudformation.yaml` file.
+- Click `Next`.
 
-- On the left side, click on `VPC Dashboard`.
-- Click on `Launch VPC Wizard`.
+![CF](img/cf2.png)
 
-![VPC](img/vpc3.png)
+- Enter a stack name (`bankdm` in the screenshot).
+- Click `Next`.
 
-- Select the second option `VPC with Public and Private Subnets` and click `Select`.
+![CF](img/cf3.png)
 
-![VPC](img/vpc4.png)
+- Scroll down all the way and click `Next`.
 
-- Leave the settings as is. Under `VPC name`, enter a name of your choice. If you change the `Private subnet name`, do take note of it as you need to change it in notebook 01.
+![CF](img/cf4.png)
 
-![VPC](img/vpc5.png)
+- Scroll down all the way. Check the box `I acknowledge ...` and click `Next`.
+
+![CF](img/cf5.png)
+
+- After a few minutes, the status should show `CREATE_COMPLETE`.
+
+![CF](img/cf6.png)
+
 
 ---
 
-## Create SageMaker Studio
+## Launch SageMaker Studio
 - In your AWS management console, go to SageMaker.
-- On the left side, click on `Amazon SageMaker Studio`.
-- At the `Get started` page, choose `Standard setup` and choose `AWS Identity and Access Management (IAM)`
-- Click on the `Choose an IAM role` box
+- On the left side, under `SageMaker Domain`, click on `Studio`.
+- Under `Domain` then under `Projects`, check if both options does not show green tick like the screenshot below:
 
-![create-studio](img/create-studio1.png)
+![template](img/template1.png)
 
-- `Create a new role`
+- If there is no green tick for BOTH, click on `Edit Settings`.
+- Click `Next`.
 
-![create-studio](img/create-studio2.png)
+![template](img/template2.png)
 
-- For this demo, we allow access to every S3 bucket. Click on `Create role`.
+- Under `SageMaker Projects and JumpStart`, ensure both options are enabled.
+- Click `Next`.
 
-![create-studio](img/create-studio3.png)
+![template](img/template3.png)
 
-- This will create an IAM role. 
+- Click `Submit`.
+![template](img/template4.png)
 
-![create-studio](img/create-studio4.png)
+- Ensure both options show a green tick.
 
-- Scrolling down, leave the `Notebook sharing configuration` and `SageMaker Projects and JumpStart` as default.
-- Under `Network and storage`, choose the VPC that you have created (default is ok) and choose at least one subnet. 
-- Under `Network Access for Studio`, ensure `VPC Only` is selected.
-- Under `Security group(s)`, choose the security group that allows access between SageMaker Studio and RedShift. The default security group is ok.
-- The screen should look like this
+![template](img/template5.png)
 
-![create-studio](img/create-studio5.png)
+- Under `Users`, click `Launch app`, then click `Studio`.
 
-- Click `Submit`. If you have any error, the submit button will not work. Scroll up to check on the error. One error I encountered is that the IAM role is not selected properly and I had to reselect it again.
+![LaunchStudio](img/launch-studio1.png)
+
 ---
-
-## Assign IAM permission
-- While waiting, the next step is to assign additional policy to the SageMaker role.
-- In your AWS management console, go to IAM.
-- On the left side, click on `Roles`.
-- Select the SageMaker role that was created earlier. Mine is listed below and yours will differ.
-
-![create-studio](img/create-studio6.png)
-
-- Notice there are two policies given to this role. Click on `Attach policies`.
-
-![create-studio](img/create-studio7.png)
-
-- Enter `iamfull` in the search box. Check the `IAMFullAccess` policy and click `Attach policy`.
-
-![create-studio](img/create-studio8.png)
-
-- This should return back to the IAM role page. Note there are three policies given to this role now.
-
-![create-studio](img/create-studio9.png)
----
-
-## Create SageMaker Studio user
-- In your AWS management console, go to SageMaker.
-- On the left side, click on `Amazon SageMaker Studio`.
-- Under the `Studio Summary`, the status should show `Ready`.
-- Click on `Add user`.
-
-![create-studio](img/create-studio10.png)
-
-- Enter your desired user name or accept the default one.
-- For the execution role, ensure the SageMaker role created earlier is selected.
-
-![create-studio](img/create-studio11.png)
-
-- Click on `Submit`.
-- Once the user is created, click on `Open Studio`.
-
-![create-studio](img/create-studio12.png)
-
 
 ## SageMaker Studio
 - After a short while, you will be presented with the following screen.
@@ -115,7 +82,7 @@ Note: This guide will setup a new VPC with a private and public subnet.
 
 ![studio](img/studio2.png)
 
-- Enter the git clone URL of this repo and click `CLONE`.
+- Enter the git clone URL of this repo (e.g. `https://github.com/laikw/bankdm-build.git`) and click `CLONE`.
 
 ![studio](img/studio3.png)
 
@@ -128,12 +95,12 @@ Note: This guide will setup a new VPC with a private and public subnet.
 
 ![studio](img/studio5.png)
 
-- Enter a name for the project and click `Create project`.
+- Enter a name for the project (e.g. BankDM) and click `Create project`. 
 
 ![studio](img/studio6.png)
 
 - After a while, the project is created.
-- Click on the first `clone repo...`.
+- Click on the first `clone repo...` to clone the modelbuild repo.
 
 ![studio](img/studio7.png)
 
@@ -149,7 +116,7 @@ Note: This guide will setup a new VPC with a private and public subnet.
 
 ![studio](img/studio10.png)
 
-- Click on the `Local path` link beside the modelbuild repo. This will bring you to the directory.
+- Click on the `Local path` link beside the modelbuild repo (first repo in the list). This will bring you to the directory.
 
 ![studio](img/studio11.png)
 
@@ -157,19 +124,16 @@ Note: This guide will setup a new VPC with a private and public subnet.
 
 ![studio](img/studio12.png)
 
-- Go to the repo that was clone earlier (`bankdemo-build` in my case). Your repo name may differ.
+- Go to the repo that was clone earlier (`bankdm-build` in my case). 
 - Select all the files, right click and click `Cut`. SageMaker Studio does not allow you to copy folders but cut is ok.
-
-![studio](img/studio12.png)
-
-- On the right side, if the BankDemo2 screen is still open, you can click on the `Local path` link beside the modelbuild repo. This will bring you to the directory.
 
 ![studio](img/studio13.png)
 
-- Right click and click `Paste`.
+- On the right side, if the BankDM screen is still open, you can click on the `Local path` link beside the modelbuild repo. This will bring you to the modelbuild repo directory. If not, manually navigate to the modelbuild repo directory.
 
 ![studio](img/studio14.png)
 
+- Right click and click `Paste`.
 - The files will be moved here. Do not navigate away from this folder. Note that the files in your directory may differ from the screenshot.
 
 ![studio](img/studio15.png)
@@ -195,7 +159,7 @@ Note: This guide will setup a new VPC with a private and public subnet.
 
 ![studio](img/studio20.png)
 
-- On the right side of the screen, click on `Pipelines` tab and double click on the Pieplines shown (`BankDemo2-p-sn41sxosn3ef` in my case).
+- On the right side of the screen, click on `Pipelines` tab and double click on the Pipelines shown (`BankDM-p-7cj6qm9kexri` in the screenshot).
 
 ![studio](img/studio21.png)
 
