@@ -14,6 +14,12 @@ Below list the AWS services used in this demo:
 - Secrets Manager
 
 ## Prerequisite prior to running the notebooks
+Before deploying the CloudFormation script, ensure the region that are you deploying to meets the following requirements:
+- Able to create new VPC. i.e. the VPC limit is not reached
+- SageMaker Studio has not been created in the region.
+
+One workaround is to use a different region that supports SageMaker Studio.
+
 Deploy the CloudFormation script `bankdm-cloudformation.yaml`. The script will do the following:
 - Create a new VPC. 
 - SageMaker Studio to be created and attached to the VPC (not the default option). Another way would be to allow connection from the Internet to RedShift which is not recommended. 
@@ -89,12 +95,13 @@ There are four roles used in this demo:
 - If you change any names such as secret/role name, you may have to edit the SageMaker Pipelines code under 'pipelines/bankdm'.
 
 ## Clean up
-Notebook 06 will clean up most of the resources created automatically by other notebooks. Other areas to delete manually are:
-- SageMaker Studio
-- S3 buckets
-- VPC (delete the CloudFormation if this method is used)
-- EFS used by SageMaker Studio
-- Resources created by SageMaker Pipelines like SageMaker Project. CLI has to be used to delete SageMaker Project which in turns deletes the CodePipeline (aws sagemaker delete-project --project-name BankDM)
+Notebook06 does not delete VPC, SageMaker Studio, SageMaker Pipelines, CodePipelines, S3, EFS etc. You can delete the SageMaker project with the AWS CLI command `aws sagemaker delete-project --project-name X`. This will remove the MLOps components like CodePipeline. 
+
+Before deleting the CloudFormation, the following components needs to be deleted manually:
+- In SageMaker Studio, shutdown SageMaker Studio by going to `File` -> `Shutdown` -> `Shut down all`
+- EFS
+
+If the CloudFormation has issues deleting the VPC, you can do so manually. 
 
 
 ## Possible enhancement
