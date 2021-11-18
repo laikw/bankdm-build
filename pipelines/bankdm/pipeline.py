@@ -168,7 +168,7 @@ def get_pipeline(
     step_redshift_download = LambdaStep(
         name="Lambda-RedShift-dl",
         lambda_func=Lambda(
-          function_arn=f"arn:aws:lambda:ap-southeast-1:{accountID}:function:bankdm-redshift-dl"
+          function_arn=f"arn:aws:lambda:{region}:{accountID}:function:bankdm-redshift-dl"
         ),
         inputs={
             "bucket": s3bucket
