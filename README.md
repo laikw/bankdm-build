@@ -14,63 +14,74 @@ Below list the AWS services used in this demo:
 - Secrets Manager
 
 ## Prerequisite prior to running the notebooks
+Before deploying the CloudFormation script, ensure the region that are you deploying to meets the following requirements:
+- Able to create new VPC. i.e. the VPC limit is not reached
+- SageMaker Studio has not been created in the region.
+
+One workaround is to use a different region that supports SageMaker Studio.
+
 Deploy the CloudFormation script `bankdm-cloudformation.yaml`. The script will do the following:
 - Create a new VPC. 
 - SageMaker Studio to be created and attached to the VPC (not the default option). Another way would be to allow connection from the Internet to RedShift which is not recommended. 
 - Add IAM roles to SageMaker Execution role.
 
 The following steps are to be done manually:
+- Enable SageMaker jumpstart in SageMaker Studio
 - Git clone this repo.
 - Create a SageMaker project for building, training and deployment. 
 - Overwrite the files from this repo to the modelbuild repo.
 
 Detailed instructions are located in [**instructions.md**](instructions.md)
 
+### High-level architecture diagram (after prerequistie steps)
 
-## High level description of the demo
-Note: Please complete the prerequisite steps above first.
-
-Notebook 01
-- Create the necessary IAM roles and policies. 
-- Create RedShift cluster, secret in Secret Manager and Lambda function. 
-
-Notebook 02
-- Explore the data (optional). 
-
-Notebook 03
-- Copy the CSV file to S3. Create table in Glue Data Catalog (Glue table) and reference the CSV file.
-- Use Athena to query the Glue table. 
-- Create RedShift schema and external table referencing the Glue table.
-- Create RedShift table. Insert CSV data to RedShift using Athena. 
-
-Notebook 04
-- Once the SageMaker staging endpoint has been created, run predictions to the endpoint. 
-
-Notebook 05
-- You can also use RedShift ML to create a model directly in RedShift using SQL statements. This leverages on SageMaker AutoPilot to create another model (different from the staging SageMaker endpoint). 
-- Predictions can also be done directly in RedShift using SQL statements to the RedShift ML model. For this demo, SQL statements are provided in the notebook but you can also run the same in the RedShift query editer. 
-
-
-
-## High-level architecture diagram 
-
-The following diagram shows the high-level architecture diagram after completing the setup.
+The following diagram shows the high-level architecture diagram after completing the prerequisite steps. Do note that this is not the final architecture.
 
 ![diagram](img/diagram1.png)
 
 To avoid any unexpected issues, a new VPC is created with one public subnet and one private subnet. The private subnet contains RedShift and VPC endpoints for SageMaker Studio and EFS storage. Later in the notebooks, the SageMaker Studio will access RedShift. With this architecture, all traffic will be within the VPC and RedShift does not need to be exposed to the Internet.
 
-CodeCommit, CodeBuild, CodePipeline, Lambda and SageMaker Pipelines are used for MLOps and it is described below.
+CodeCommit, CodeBuild, CodePipeline, and SageMaker Pipelines are used for MLOps and it is described later.
 
-## MLOps Flow
+## High-level description of the demo
+Note: Please complete the prerequisite steps above first.
 
-The following diagram shows the architecture for MLOps
+### Notebook 01
+- Create the necessary IAM roles and policies. 
+- Create RedShift cluster, secret in Secret Manager and Lambda function. 
+
+### Notebook 02
+- Explore the data (optional). 
+
+### Notebook 03
+- Copy the CSV file to S3. Create table in Glue Data Catalog (Glue table) and reference the CSV file.
+- Use Athena to query the Glue table. 
+- Create RedShift schema and external table referencing the Glue table.
+- Create RedShift table. Insert CSV data to RedShift using Athena. 
+- Manually save and commit the notebook in order to trigger the MLOps workflow.
+
+### MLOps Workflow
+
+The following diagram shows the MLOps workflow after manually committing the code:
 ![pipeline](img/pipeline1.png)
 
-Once the user commits the code to CodeCommit, the following steps are run:
+The diagrams below describe the workflow in more detail:
 ![pipeline](img/pipeline2.png)
 
 ![pipeline](img/pipeline3.png)
+
+### High-level architecture diagram (after MLOps workflow executed successfully)
+
+![diagram](img/diagram2.png)
+
+
+### Notebook 04
+- Once the SageMaker staging endpoint has been created, run predictions to the endpoint. 
+
+### Notebook 05
+- You can also use RedShift ML to create a model directly in RedShift using SQL statements. This leverages on SageMaker AutoPilot to create another model (different from the staging SageMaker endpoint). 
+- Predictions can also be done directly in RedShift using SQL statements to the RedShift ML model. For this demo, SQL statements are provided in the notebook but you can also run the same in the RedShift query editer. 
+
 
 
 ## Roles
@@ -88,12 +99,13 @@ There are four roles used in this demo:
 - If you change any names such as secret/role name, you may have to edit the SageMaker Pipelines code under 'pipelines/bankdm'.
 
 ## Clean up
-Notebook 06 will clean up most of the resources created automatically by other notebooks. Other areas to delete manually are:
-- SageMaker Studio
-- S3 buckets
-- VPC (delete the CloudFormation if this method is used)
-- EFS used by SageMaker Studio
-- Resources created by SageMaker Pipelines like SageMaker Project. CLI has to be used to delete SageMaker Project which in turns deletes the CodePipeline (aws sagemaker delete-project --project-name BankDM)
+Notebook06 does not delete VPC, SageMaker Studio, SageMaker Pipelines, CodePipelines, S3, EFS etc. You can delete the SageMaker project with the AWS CLI command `aws sagemaker delete-project --project-name X`. This will remove the MLOps components like CodePipeline. 
+
+Before deleting the CloudFormation, the following components needs to be deleted manually:
+- In SageMaker Studio, shutdown SageMaker Studio by going to `File` -> `Shutdown` -> `Shut down all`
+- EFS
+
+If the CloudFormation has issues deleting the VPC, you can do so manually. 
 
 
 ## Possible enhancement
