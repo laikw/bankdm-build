@@ -50,8 +50,8 @@ Note: Please complete the prerequisite steps above first.
 - Create the necessary IAM roles and policies. 
 - Create RedShift cluster, secret in Secret Manager and Lambda function. 
 
-### Notebook 02
-- Explore the data (optional). 
+### Notebook 02 (optional)
+- Explore the data.
 
 ### Notebook 03
 - Copy the CSV file to S3. Create table in Glue Data Catalog (Glue table) and reference the CSV file.
@@ -59,6 +59,7 @@ Note: Please complete the prerequisite steps above first.
 - Create RedShift schema and external table referencing the Glue table.
 - Create RedShift table. Insert CSV data to RedShift using Athena. 
 - Manually save and commit the notebook in order to trigger the MLOps workflow.
+- It takes ~12 minutes to run the pipeline and ~5 minutes to deploy the SageMaker endpoint.
 
 ### MLOps Workflow
 
