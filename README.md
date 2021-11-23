@@ -115,9 +115,10 @@ If the CloudFormation has issues deleting the VPC, you can do so manually.
 - Cloudformation to create other resources
 
 
-## Reference
+## References
 Some codes were taken from the following sources and edited from there:
 - https://github.com/data-science-on-aws/workshop
 - https://github.com/aws-samples/amazon-sagemaker-immersion-day
 - https://aws.amazon.com/blogs/aws/amazon-redshift-ml-is-now-generally-available-use-sql-to-create-machine-learning-models-and-make-predictions-from-your-data/
 - https://github.com/aws/amazon-sagemaker-examples/tree/master/sagemaker-pipelines/tabular/lambda-step
+- https://aws.amazon.com/blogs/big-data/using-the-amazon-redshift-data-api-to-interact-with-amazon-redshift-clusters/

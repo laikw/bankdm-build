@@ -6,7 +6,7 @@ phases:
       python: 3.8
     commands:
       - pip install --upgrade --force-reinstall . awscli
-  
+
   build:
     commands:
       - export PYTHONUNBUFFERED=TRUE
