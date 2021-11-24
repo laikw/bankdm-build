@@ -99,7 +99,7 @@ Resources:
   IAMManagedPolicy:
     Type: "AWS::IAM::ManagedPolicy"
     Properties:
-      ManagedPolicyName: "AmazonSageMaker-ExecutionPolicy-20210914T142114"
+      ManagedPolicyName: "AmazonSageMaker-ExecutionPolicy-BankDM"
       Path: "/service-role/"
       PolicyDocument: |
           {
@@ -124,7 +124,9 @@ Resources:
     Type: "AWS::IAM::Role"
     Properties:
       Path: "/service-role/"
-      RoleName: "AmazonSageMaker-ExecutionRole-20210914T142114"
+      RoleName: !Sub 
+      - 'AmazonSageMaker-ExecutionRole-${RandomGUID}'
+      - { RandomGUID: !Select [0, !Split ["-", !Select [2, !Split ["/", !Ref AWS::StackId ]]]] }
       AssumeRolePolicyDocument: "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"sagemaker.amazonaws.com\"},\"Action\":\"sts:AssumeRole\"}]}"
       MaxSessionDuration: 3600
       ManagedPolicyArns: 
@@ -152,7 +154,9 @@ Resources:
         - !GetAtt EC2VPC.DefaultSecurityGroup
         SharingSettings: 
           NotebookOutputOption: "Allowed"
-          S3OutputPath: !Sub "s3://sagemaker-studio-${AWS::AccountId}-bn3kxpx3xob/sharing"
+          S3OutputPath: !Sub 
+          - "s3://sagemaker-studio-${AWS::AccountId}-${RandomGUID}/sharing"
+          - { RandomGUID: !Select [0, !Split ["-", !Select [2, !Split ["/", !Ref AWS::StackId ]]]] }
 
   SageMakerUserProfile:
     Type: "AWS::SageMaker::UserProfile"
